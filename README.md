@@ -5,7 +5,7 @@ This should work for TF >= 1.4.
 
 It implements either synchronous and asynchronous parameter updates.
 
-The "data" is just a simple line with random noise. You can change the slope and intercept of the line by editing those variables at the top of the `test_dist.py` file.
+The "data" is just a simple line with random noise. You can change the slope and intercept of the line by editing those variables at the top of the [test_dist.py](https://github.com/mas-dse-greina/distributed_tensorflow/blob/master/test_dist.py) file.
 
 ```
 slope = 5
@@ -18,7 +18,7 @@ To run the script:
 + `conda create -n tf -c intel python=2 pip numpy`
 + `source activate tf`
 + `pip install https://anaconda.org/intel/tensorflow/1.4.0/download/tensorflow-1.4.0-cp27-cp27mu-linux_x86_64.whl`
-2. Edit `test_dist.py` to specify which machines will be parameter servers and which will be worker nodes.
+2. Edit [test_dist.py](https://github.com/mas-dse-greina/distributed_tensorflow/blob/master/test_dist.py) to specify which machines will be parameter servers and which will be worker nodes.
 ```
 ps_hosts = ["22.100.68.245"]
 ps_ports = ["2222"]
