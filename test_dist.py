@@ -192,7 +192,7 @@ def main(_):
 		# Define a line with random noise
 		train_x = np.random.randn(1)*10
 		train_y = slope * train_x + np.random.randn(1) * 0.33  + intercept
-		i=1
+		
 		_, loss_v, step = sess.run([train_op, loss_value, global_step], feed_dict={input:train_x, label:train_y})
 
 		if step % steps_to_validate == 0:
