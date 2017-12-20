@@ -5,7 +5,7 @@
 
 '''
 Usage:  python test_dist.py --ip=10.100.68.245 --issync=0
-        for asychronous TF
+        for asynchronous TF
         python test_dist.py --ip=10.100.68.245 --issync=1
         for synchronous updates
         The IP address must match one of the ones in the list below. If not passed,
@@ -84,7 +84,8 @@ def main(_):
   cluster = tf.train.ClusterSpec({"ps": ps_list, "worker": worker_list})
   server = tf.train.Server(cluster,job_name=job_name,task_index=task_index)
 
-  issync = FLAGS.issync   # Synchronous or asynchronous updates
+  issync = (FLAGS.issync == 1)  # Synchronous or asynchronous updates
+  ischief = (task_index == 0)  # Am I the chief node
 
 
   if job_name == "ps":
@@ -133,7 +134,7 @@ def main(_):
 	  optimizer = tf.train.GradientDescentOptimizer(learning_rate)
 
 	  grads_and_vars = optimizer.compute_gradients(loss_value)
-	  if issync == 1:
+	  if issync:
 		
 		rep_op = tf.train.SyncReplicasOptimizer(optimizer,
 			replicas_to_aggregate=len(worker_hosts),
@@ -168,7 +169,7 @@ def main(_):
 
 	summary_op = tf.summary.merge_all()
 
-	sv = tf.train.Supervisor(is_chief=(task_index == 0),
+	sv = tf.train.Supervisor(is_chief=ischief,
 		logdir=CHECKPOINT_DIRECTORY,
 		init_op=init_op,
 		summary_op=summary_op,
@@ -179,7 +180,7 @@ def main(_):
 
 	with sv.prepare_or_wait_for_session(server.target) as sess:
 	  
-	  if task_index == 0 and issync == 1:
+	  if ischief and issync:
 		sv.start_queue_runners(sess, [chief_queue_runner])
 		sess.run(init_token_op)
 	  step = 0
@@ -190,7 +191,7 @@ def main(_):
 		train_x = np.random.randn(1)*10
 		train_y = slope * train_x + np.random.randn(1) * 0.33  + intercept
 
-		_, loss_v, step, summary = sess.run([train_op, loss_value, global_step, summary_op], feed_dict={input:train_x, label:train_y})
+		_, loss_v, step = sess.run([train_op, loss_value, global_step], feed_dict={input:train_x, label:train_y})
 	
 		if step % steps_to_validate == 0:
 		  w,b = sess.run([weight,bias])
