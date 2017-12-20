@@ -203,7 +203,7 @@ def main(_):
 
 		step = 0
 
-		while (step < NUM_STEPS):
+		while (not sv.should_stop()) and (step < NUM_STEPS):
 
 			# Define a line with random noise
 			train_x = np.random.randn(1)*10
