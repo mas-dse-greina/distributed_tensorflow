@@ -172,7 +172,7 @@ def main(_):
 	sv = tf.train.Supervisor(is_chief=ischief,
 		logdir=CHECKPOINT_DIRECTORY,
 		init_op=init_op,
-		summary_op=summary_op,
+		summary_op=None,
 		saver=saver,
 		global_step=global_step,
 		save_model_secs=20)
