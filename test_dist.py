@@ -180,7 +180,7 @@ def main(_):
 	sv = tf.train.Supervisor(is_chief=ischief,
 		logdir=CHECKPOINT_DIRECTORY,
 		init_op=init_op,
-		#summary_op=summary_op,
+		summary_op=None, #summary_op,
 		saver=saver,
 		global_step=global_step,
 		save_model_secs=60)  # Save the model (with weights) everty 60 seconds
