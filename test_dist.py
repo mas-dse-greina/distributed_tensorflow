@@ -113,6 +113,9 @@ def main(_):
 		sess.run(queue.dequeue())
 		print("Worker #{} reports job finished." .format(i))
 	 
+	import time
+	time.sleep(10)
+	
 	print("Parameter server #{} is quitting".format(task_index))
 	print("Training complete.")
 
@@ -191,7 +194,6 @@ def main(_):
 		summary_op=None, 
 		saver=saver,
 		global_step=global_step,
-		stop_grace_secs=5,
 		save_model_secs=60)  # Save the model (with weights) everty 60 seconds
 
 #with sv.prepare_or_wait_for_session(server.target) as sess:
