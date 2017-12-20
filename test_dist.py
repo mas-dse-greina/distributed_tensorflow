@@ -113,9 +113,6 @@ def main(_):
 		sess.run(queue.dequeue())
 		print("Worker #{} reports job finished." .format(i))
 	 
-	import time
-	time.sleep(10)
-	
 	print("Parameter server #{} is quitting".format(task_index))
 	print("Training complete.")
 
@@ -227,7 +224,7 @@ def main(_):
 		for op in enq_ops:
 			sess.run(op)   # Send the "work completed" signal to the parameter server
 			
-		
+		sess.close()
 		sv.stop()
 	  
 				
