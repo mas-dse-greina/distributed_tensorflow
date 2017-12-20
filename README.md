@@ -29,7 +29,7 @@ worker_ports = ["2222", "2222"] #, "2222", "2222"]
 
 Here's a sample output from one of the worker nodes:
 ```
-(tf) [tony@tensor816 distributed_tensorflow]$ python test_dist.py --ip=10.100.68.193 --issync=0
+(tf) [tony@tensor816 distributed_tensorflow]$ python test_dist.py --ip=22.100.28.193 --issync=0
 Distributed TensorFlow training
 Parameter server nodes are: ['22.100.28.245:2222']
 Worker nodes are ['22.100.28.193:2222', '22.100.28.183:2222']
