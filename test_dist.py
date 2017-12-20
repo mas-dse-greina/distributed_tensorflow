@@ -223,6 +223,8 @@ def main(_):
 	  # Send a signal to the ps when done by simply updating a queue in the shared graph
 	  for op in enq_ops:
 		sess.run(op)   # Send the "work completed" signal to the parameter server
+		print("1")
+	  print('there')
 				
 	print('Finished work')
 	#sv.request_stop()
