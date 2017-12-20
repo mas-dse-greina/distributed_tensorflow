@@ -200,6 +200,7 @@ def main(_):
 		if is_chief and is_sync:
 			sv.start_queue_runners(sess, [chief_queue_runner])
 			sess.run(init_token_op)
+			
 		step = 0
 
 		while (step < NUM_STEPS):
@@ -224,8 +225,6 @@ def main(_):
 		for op in enq_ops:
 			sess.run(op)   # Send the "work completed" signal to the parameter server
 			
-		
-	  
 				
 	print('Finished work')
 	#sv.request_stop()
