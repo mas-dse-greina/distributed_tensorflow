@@ -117,8 +117,8 @@ def main(_):
 	  '''
 	  BEGIN: Define our model
 	  '''
-	  input = tf.placeholder("float")
-	  label = tf.placeholder("float")
+	  input = tf.placeholder(tf.float32)
+	  label = tf.placeholder(tf.float32)
 
 	  weight = tf.get_variable("weight", [1], tf.float32, initializer=tf.random_normal_initializer())
 	  bias  = tf.get_variable("bias", [1], tf.float32, initializer=tf.random_normal_initializer())
@@ -214,7 +214,7 @@ def main(_):
 	sv.request_stop()
 
 def loss(label, pred):
-  return tf.reduce_mean(tf.square(label - pred))
+  return tf.cast(tf.square(label - pred), tf.float32)
 
 if __name__ == "__main__":
   tf.app.run()
