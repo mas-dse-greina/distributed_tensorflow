@@ -113,7 +113,7 @@ def main(_):
 		sess.run(queue.dequeue())
 		print("Worker #{} reports job finished." .format(i))
 	 
-	print("Parameter server {} is quitting".format(task_index))
+	print("Parameter server #{} is quitting".format(task_index))
 	print("Training complete.")
 
   elif job_name == "worker":
@@ -226,6 +226,7 @@ def main(_):
 				
 	#sv.request_stop()
 	sv.stop()
+	sv.close()
 
 if __name__ == "__main__":
   tf.app.run()
