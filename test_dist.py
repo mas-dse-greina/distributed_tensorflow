@@ -28,7 +28,7 @@ slope = 5
 intercept = 13
 
 CHECKPOINT_DIRECTORY = "./checkpoints/"
-NUM_STEPS = 10000
+NUM_STEPS = 4000
 
 ####################################################################
 
@@ -99,24 +99,22 @@ def main(_):
 
   if job_name == "ps":
 
-	# sess = tf.Session(server.target)
-	# queue = create_done_queue(task_index)
+	sess = tf.Session(server.target)
+	queue = create_done_queue(task_index)
 
-	# # wait until all workers are done
-	# for i in range(len(worker_hosts)):
-	# 	print("\n")
-	# 	print("*"*30)
-	# 	print("\nParameter server #{} started with task #{} on this machine.\n\n" \
-	# 		"Waiting on workers to finish.\n\nPress CTRL-\\ to terminate early." .format(task_index, i))
-	# 	print("*"*30)
-	# 	sess.run(queue.dequeue())
-	# 	print("Worker #{} reports job finished." .format(i))
+	print("\n")
+	print("*"*30)
+	print("\nParameter server #{} on this machine.\n\n" \
+		"Waiting on workers to finish.\n\nPress CTRL-\\ to terminate early." .format(task_index))
+	print("*"*30)
+
+	# wait until all workers are done
+	for i in range(len(worker_hosts)):
+		sess.run(queue.dequeue())
+		print("Worker #{} reports job finished." .format(i))
 	 
-	# print("Parameter server {} is quitting".format(task_index))
-	# print("Training complete.")
-	
-	print("Server started. Press CTRL-\\ to terminate early.")
-	server.join()
+	print("Parameter server {} is quitting".format(task_index))
+	print("Training complete.")
 
   elif job_name == "worker":
 	
@@ -205,13 +203,16 @@ def main(_):
 		train_x = np.random.randn(1)*10
 		train_y = slope * train_x  + intercept + np.random.randn(1) * 0.33
 
-		_, loss_v, step = sess.run([train_op, loss_value, global_step], feed_dict={inputv:train_x, label:train_y})
+		_, loss_v, step = sess.run([train_op, loss_value, global_step], 
+									feed_dict={inputv:train_x, label:train_y})
 	
 		if is_chief and (step % steps_to_validate == 0):
 		  w,b = sess.run([weight,bias])
 		  # w,b, summary = sess.run([weight,bias,summary_op])
 		  # sv.summary_computed(sess, summary)  # Update the summary
-		  print("[step: {:,} of {:,}] Predicted Slope: {:.3f} (True slope = {}), Predicted Intercept: {:.3f} (True intercept = {}), loss: {:.4f}".format(step, NUM_STEPS, w[0], slope, b[0], intercept, loss_v))
+		  print("[step: {:,} of {:,}] Predicted Slope: {:.3f} (True slope = {}), " \
+		  	    "Predicted Intercept: {:.3f} (True intercept = {}), loss: {:.4f}" \
+		  	    .format(step, NUM_STEPS, w[0], slope, b[0], intercept, loss_v))
 
 	
 	  # Send a signal to the ps when done by simply updating a queue in the shared graph
