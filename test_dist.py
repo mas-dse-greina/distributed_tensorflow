@@ -41,6 +41,9 @@ import socket
 del os.environ["http_proxy"]
 del os.environ["https_proxy"]
 
+os.environ["GRPC_VERBOSITY"]="DEBUG"
+os.environ["GRPC_TRACE"] = "all"
+
 os.environ["TF_CPP_MIN_LOG_LEVEL"]="2"  # Get rid of the AVX, SSE warnings
 
 # Define parameters
@@ -173,9 +176,9 @@ def main(_):
 		enq_ops.append(qop)
 
 	if is_chief:
-		summary_op = None
-	else:
 		summary_op = tf.summary.merge_all()
+	else:
+		summary_op = None
 
 	sv = tf.train.Supervisor(is_chief=is_chief,
 		logdir=CHECKPOINT_DIRECTORY,
