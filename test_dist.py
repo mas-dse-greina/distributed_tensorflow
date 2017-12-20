@@ -134,8 +134,8 @@ def main(_):
 	  inputv = tf.placeholder(tf.float32)
 	  label  = tf.placeholder(tf.float32)
 
-	  weight = tf.get_variable("slope", [1], tf.float32, initializer=tf.random_normal_initializer())
-	  bias  = tf.get_variable("intercept", [1], tf.float32, initializer=tf.random_normal_initializer())
+	  weight = tf.get_variable("slope", [], tf.float32, initializer=tf.random_normal_initializer())
+	  bias  = tf.get_variable("intercept", [], tf.float32, initializer=tf.random_normal_initializer())
 	  pred = tf.multiply(inputv, weight) + bias
 
 	  loss_value = loss(label, pred)
@@ -168,7 +168,7 @@ def main(_):
 	  init_op = tf.global_variables_initializer()
 	  
 	  saver = tf.train.Saver()
-	  tf.summary.scalar(weight.op.name, weight)
+	  tf.summary.scalar('slope', weight)
 	  tf.summary.scalar("loss", loss_value)
 	  tf.summary.histogram("loss", loss_value)
 	  
@@ -219,7 +219,7 @@ def main(_):
 			  
 			  print("[step: {:,} of {:,}] Predicted Slope: {:.3f} (True slope = {}), " \
 					"Predicted Intercept: {:.3f} (True intercept = {}), loss: {:.4f}" \
-					.format(step, NUM_STEPS, w[0], slope, b[0], intercept, loss_v))
+					.format(step, NUM_STEPS, w, slope, b, intercept, loss_v))
 
 			  summary = sess.run(summary_op, feed_dict={inputv:train_x, label:train_y})
 			  sv.summary_computed(sess, summary)  # Update the summary
