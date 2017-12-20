@@ -1,6 +1,8 @@
 # distributed_tensorflow
 Sample Implementation of Distributed TensorFlow
 
+![Async is faster than sync](https://github.com/mas-dse-greina/distributed_tensorflow/blob/master/training_time.png)
+
 This should work for TF >= 1.4.
 
 It implements either synchronous and asynchronous parameter updates.
