@@ -210,7 +210,7 @@ def main(_):
 	sv.request_stop()
 
 def loss(label, pred):
-  return [tf.square(label - pred)]
+  return tf.reduce_mean(tf.square(label - pred))
 
 if __name__ == "__main__":
   tf.app.run()
