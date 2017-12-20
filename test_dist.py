@@ -189,8 +189,8 @@ def main(_):
 	  tf.summary.histogram("intercept", bias)
 	  
 	# Need to remove the checkpoint directory before each new run
-	import shutil
-	shutil.rmtree(CHECKPOINT_DIRECTORY, ignore_errors=True)
+	# import shutil
+	# shutil.rmtree(CHECKPOINT_DIRECTORY, ignore_errors=True)
 
 	# Send a signal to the ps when done by simply updating a queue in the shared graph
 	enq_ops = []
