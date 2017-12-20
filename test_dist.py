@@ -37,6 +37,11 @@ import tensorflow as tf
 import os
 import socket
 
+import multiprocessing
+
+num_inter_op_threads = 2  
+num_intra_op_threads = multiprocessing.cpu_count() // 2 # Use half the CPU cores
+
 # Unset proxy env variable to avoid gRPC errors
 del os.environ["http_proxy"]
 del os.environ["https_proxy"]
@@ -90,6 +95,11 @@ def loss(label, pred):
 
 def main(_):
 
+  config = tf.ConfigProto(inter_op_parallelism_threads=num_inter_op_threads,intra_op_parallelism_threads=num_intra_op_threads)
+
+  run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+  run_metadata = tf.RunMetadata()  # For Tensorflow trace
+
   cluster = tf.train.ClusterSpec({"ps": ps_list, "worker": worker_list})
   server = tf.train.Server(cluster,job_name=job_name,task_index=task_index)
 
@@ -99,7 +109,7 @@ def main(_):
 
   if job_name == "ps":
 
-	sess = tf.Session(server.target)
+	sess = tf.Session(server.target, config=config)
 	queue = create_done_queue(task_index)
 
 	print("\n")
@@ -188,11 +198,11 @@ def main(_):
 		qop = q.enqueue(1)
 		enq_ops.append(qop)
 
-	summary_op = tf.summary.merge_all()
-	# if is_chief:
-	# 	summary_op = tf.summary.merge_all()
-	# else:
-	# 	summary_op = None
+	# Only the chief does the summary
+	if is_chief:
+		summary_op = tf.summary.merge_all()
+	else:
+		summary_op = None
 
 	# TODO:  Theoretically I can pass the summary_op into
 	# the Supervisor and have it handle the TensorBoard
@@ -210,7 +220,7 @@ def main(_):
 	# I'd like to use managed_session for this as it is more abstract
 	# and probably less sensitive to changes from the TF team. However,
 	# I am finding that the chief worker hangs on exit if I use managed_session.
-	with sv.prepare_or_wait_for_session(server.target) as sess:
+	with sv.prepare_or_wait_for_session(server.target, config=config) as sess:
 	#with sv.managed_session(server.target) as sess:
 	
 	  
@@ -229,7 +239,7 @@ def main(_):
 			history, loss_v, step = sess.run([train_op, loss_value, global_step], 
 										feed_dict={inputv:train_x, label:train_y})
 		
-			if (step % steps_to_validate == 0):
+			if is_chief and (step % steps_to_validate == 0):
 			  w,b = sess.run([weight,bias])
 			  
 			  print("[step: {:,} of {:,}] Predicted Slope: {:.3f} (True slope = {}), " \
