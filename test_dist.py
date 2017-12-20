@@ -99,23 +99,24 @@ def main(_):
 
   if job_name == "ps":
 
-	sess = tf.Session(server.target)
-	queue = create_done_queue(task_index)
+	# sess = tf.Session(server.target)
+	# queue = create_done_queue(task_index)
 
-	# wait until all workers are done
-	for i in range(len(worker_hosts)):
-		print("\n")
-		print("*"*30)
-		print("\nParameter server #{} started with task #{} on this machine.\n\n" \
-			"Waiting on workers to finish.\n\nPress CTRL-\\ to terminate early." .format(task_index, i))
-		print("*"*30)
-		sess.run(queue.dequeue())
-		print("Worker #{} reports job finished." .format(i))
+	# # wait until all workers are done
+	# for i in range(len(worker_hosts)):
+	# 	print("\n")
+	# 	print("*"*30)
+	# 	print("\nParameter server #{} started with task #{} on this machine.\n\n" \
+	# 		"Waiting on workers to finish.\n\nPress CTRL-\\ to terminate early." .format(task_index, i))
+	# 	print("*"*30)
+	# 	sess.run(queue.dequeue())
+	# 	print("Worker #{} reports job finished." .format(i))
 	 
-	print("Parameter server {} is quitting".format(task_index))
-	print("Training complete.")
-	# print("Server started. Press CTRL-\\ to terminate early.")
-	# server.join()
+	# print("Parameter server {} is quitting".format(task_index))
+	# print("Training complete.")
+	
+	print("Server started. Press CTRL-\\ to terminate early.")
+	server.join()
 
   elif job_name == "worker":
 	
