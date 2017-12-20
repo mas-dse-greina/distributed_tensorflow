@@ -189,7 +189,7 @@ def main(_):
 
 		if step % steps_to_validate == 0:
 		  w,b = sess.run([weight,bias])
-		  print("step: {} of {}, Predicted Slope: {:.3f} (True slope = {}), Predicted Intercept: {:.3f} (True intercept = {}, loss: {:.4f}".format(step, NUM_STEPS, w[0], slope, b[0], intercept, loss_v[0]))
+		  print("step: {,} of {,}, Predicted Slope: {:.3f} (True slope = {}), Predicted Intercept: {:.3f} (True intercept = {}, loss: {:.4f}".format(step, NUM_STEPS, w[0], slope, b[0], intercept, loss_v[0]))
 
 	
 	  # Send a signal to the ps when done by simply updating a queue in the shared graph
