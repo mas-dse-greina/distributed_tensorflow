@@ -215,12 +215,12 @@ def main(_):
 			if is_chief and (step % steps_to_validate == 0):
 			  w,b = sess.run([weight,bias])
 			  
-			  # sv.summary_computed(sess, summary)  # Update the summary
 			  print("[step: {:,} of {:,}] Predicted Slope: {:.3f} (True slope = {}), " \
 					"Predicted Intercept: {:.3f} (True intercept = {}), loss: {:.4f}" \
 					.format(step, NUM_STEPS, w[0], slope, b[0], intercept, loss_v))
 
 			  summary = sess.run([summary_op], feed_dict={inputv:train_x, label:train_y})
+			  sv.summary_computed(sess, summary)  # Update the summary
 
 	  
 		 # Send a signal to the ps when done by simply updating a queue in the shared graph
