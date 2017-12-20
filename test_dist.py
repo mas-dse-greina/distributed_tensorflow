@@ -208,8 +208,9 @@ def main(_):
 	# the Supervisor and have it handle the TensorBoard
 	# log entries. However, doing so seems to hang the code.
 	# For now, I just handle the summary calls explicitly.
+	import datetime
 	sv = tf.train.Supervisor(is_chief=is_chief,
-		logdir=CHECKPOINT_DIRECTORY,
+		logdir=CHECKPOINT_DIRECTORY+'/run'+datetime.now().strftime("%Y%m%d-%H%M%S"),
 		init_op=init_op,
 		summary_op=None, 
 		saver=saver,
