@@ -167,7 +167,7 @@ def main(_):
 		enq_ops.append(qop)
 
 	if (task_index == 0):
-		summary_op = tf.summary.merge_all()
+		summary_op = tf.merge_all_summaries()
 	else:
 		summary_op = None
 
