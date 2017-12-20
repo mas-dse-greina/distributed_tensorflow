@@ -193,8 +193,8 @@ def main(_):
 		global_step=global_step,
 		save_model_secs=60)  # Save the model (with weights) everty 60 seconds
 
-	#with sv.prepare_or_wait_for_session(server.target) as sess:
-	with sv.managed_session(server.target) as sess:
+	with sv.prepare_or_wait_for_session(server.target) as sess:
+	#with sv.managed_session(server.target) as sess:
 	
 	  
 		if is_chief and is_sync:
@@ -214,11 +214,13 @@ def main(_):
 		
 			if is_chief and (step % steps_to_validate == 0):
 			  w,b = sess.run([weight,bias])
-			  # w,b, summary = sess.run([weight,bias,summary_op])
+			  
 			  # sv.summary_computed(sess, summary)  # Update the summary
 			  print("[step: {:,} of {:,}] Predicted Slope: {:.3f} (True slope = {}), " \
 					"Predicted Intercept: {:.3f} (True intercept = {}), loss: {:.4f}" \
 					.format(step, NUM_STEPS, w[0], slope, b[0], intercept, loss_v))
+
+			  summary = sess.run([summary_op])
 
 	  
 		 # Send a signal to the ps when done by simply updating a queue in the shared graph
