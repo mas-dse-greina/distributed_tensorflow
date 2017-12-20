@@ -168,8 +168,8 @@ def main(_):
 	  init_op = tf.global_variables_initializer()
 	  
 	  saver = tf.train.Saver()
-	  tf.summary.scalar("loss", [loss_value])
-	  tf.summary.scalar("mae", [tf.metrics.mean_absolute_error(label, pred)])
+	  tf.summary.scalar("loss", loss_value)
+	  tf.summary.histogram("loss", loss_value)
 	  
 	# Need to remove the checkpoint directory before each new run
 	import shutil
