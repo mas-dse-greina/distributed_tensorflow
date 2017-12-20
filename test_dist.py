@@ -170,7 +170,7 @@ def main(_):
 		enq_ops.append(qop)
 
 	if ischief:
-		summary_op = tf.summary.merge_all()
+		summary_op = None #tf.summary.merge_all()
 	else:
 		summary_op = None
 
