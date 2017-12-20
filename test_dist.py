@@ -224,9 +224,10 @@ def main(_):
 	  for op in enq_ops:
 		sess.run(op)   # Send the "work completed" signal to the parameter server
 				
+	print('Finished work')
 	#sv.request_stop()
 	sv.stop()
-	sv.close()
+
 
 if __name__ == "__main__":
   tf.app.run()
