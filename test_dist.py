@@ -169,18 +169,12 @@ def main(_):
 		qop = q.enqueue(1)
 		enq_ops.append(qop)
 
-
-	if ischief:
-		summary_op = tf.summary.merge_all()
-	else:
-		summary_op = None
-
 	summary_op = tf.summary.merge_all()
 
 	sv = tf.train.Supervisor(is_chief=ischief,
 		logdir=CHECKPOINT_DIRECTORY,
 		init_op=init_op,
-		summary_op=None, #summary_op,
+		summary_op=None, 
 		saver=saver,
 		global_step=global_step,
 		save_model_secs=60)  # Save the model (with weights) everty 60 seconds
@@ -199,12 +193,12 @@ def main(_):
 		train_x = np.random.randn(1)*10
 		train_y = slope * train_x  + intercept + np.random.randn(1) * 0.33
 
-		_, loss_v, step, summary = sess.run([train_op, loss_value, global_step, summary_op], feed_dict={inputv:train_x, label:train_y})
+		history, loss_v, step = sess.run([train_op, loss_value, global_step], feed_dict={inputv:train_x, label:train_y})
 	
-		if (step % steps_to_validate == 0):
-		  w,b = sess.run([weight,bias])
-		  # w,b, summary = sess.run([weight,bias,summary_op])
-		  # sv.summary_computed(sess, summary)  # Update the summary
+		if ischief and (step % steps_to_validate == 0):
+		  #w,b = sess.run([weight,bias])
+		  w,b, summary = sess.run([weight,bias,summary_op])
+		  sv.summary_computed(sess, summary)  # Update the summary
 		  print("(step: {:,} of {:,}) Predicted Slope: {} (True slope = {}), Predicted Intercept: {} (True intercept = {}, loss: {}".format(step, NUM_STEPS, w[0], slope, b[0], intercept, loss_v))
 
 	
