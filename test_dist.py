@@ -28,7 +28,7 @@ slope = 5
 intercept = 13
 
 CHECKPOINT_DIRECTORY = "./checkpoints/"
-NUM_STEPS = 4000
+NUM_STEPS = 50000
 
 ####################################################################
 
