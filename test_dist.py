@@ -169,6 +169,7 @@ def main(_):
 	  
 	  saver = tf.train.Saver()
 	  tf.summary.scalar("loss", loss_value)
+	  tf.summary.scalar("mae", tf.metrics.mean_absolute_error(labels, pred))
 	  
 	# Need to remove the checkpoint directory before each new run
 	import shutil
