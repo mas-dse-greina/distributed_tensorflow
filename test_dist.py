@@ -154,7 +154,7 @@ def main(_):
 	  init_op = tf.global_variables_initializer()
 	  
 	  saver = tf.train.Saver()
-	  tf.summary.scalar('cost', loss_value)
+	  tf.summary.scalar('cost', [loss_value])
 	  
  	# Need to remove the checkpoint directory before each new run
 	import shutil
