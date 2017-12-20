@@ -214,7 +214,7 @@ def main(_):
 	sv.request_stop()
 
 def loss(label, pred):
-  return tf.cast(tf.square(label - pred), tf.float32)
+  return tf.square(label - pred)[0]
 
 if __name__ == "__main__":
   tf.app.run()
