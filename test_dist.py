@@ -5,11 +5,11 @@
 
 """
 Usage:  python test_dist.py --ip=10.100.68.245 --is_sync=0
-        for asynchronous TF
-        python test_dist.py --ip=10.100.68.245 --is_sync=1
-        for synchronous updates
-        The IP address must match one of the ones in the list below. If not passed,
-        then we"ll default to the current machine"s IP (which is usually correct unless you use OPA)
+		for asynchronous TF
+		python test_dist.py --ip=10.100.68.245 --is_sync=1
+		for synchronous updates
+		The IP address must match one of the ones in the list below. If not passed,
+		then we"ll default to the current machine"s IP (which is usually correct unless you use OPA)
 """
 ps_hosts = ["10.100.68.245"]
 ps_ports = ["2222"]
@@ -170,7 +170,7 @@ def main(_):
 	  saver = tf.train.Saver()
 	  tf.summary.scalar("loss", loss_value)
 	  
- 	# Need to remove the checkpoint directory before each new run
+	# Need to remove the checkpoint directory before each new run
 	import shutil
 	shutil.rmtree(CHECKPOINT_DIRECTORY, ignore_errors=True)
 
@@ -204,8 +204,8 @@ def main(_):
 
 	  while (step < NUM_STEPS):
 
-	  	if sv.should_stop():
-        	break
+		if sv.should_stop():
+			break
 
 		# Define a line with random noise
 		train_x = np.random.randn(1)*10
@@ -219,8 +219,8 @@ def main(_):
 		  # w,b, summary = sess.run([weight,bias,summary_op])
 		  # sv.summary_computed(sess, summary)  # Update the summary
 		  print("[step: {:,} of {:,}] Predicted Slope: {:.3f} (True slope = {}), " \
-		  	    "Predicted Intercept: {:.3f} (True intercept = {}), loss: {:.4f}" \
-		  	    .format(step, NUM_STEPS, w[0], slope, b[0], intercept, loss_v))
+				"Predicted Intercept: {:.3f} (True intercept = {}), loss: {:.4f}" \
+				.format(step, NUM_STEPS, w[0], slope, b[0], intercept, loss_v))
 
 	
 	  # Send a signal to the ps when done by simply updating a queue in the shared graph
