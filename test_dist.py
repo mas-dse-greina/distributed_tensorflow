@@ -27,7 +27,7 @@ print("Worker nodes are {}".format(worker_list))
 slope = 5
 intercept = 13
 
-CHECKPOINT_DIRECTORY = "./checkpoints/"
+CHECKPOINT_DIRECTORY = "checkpoints"
 NUM_STEPS = 50000
 
 ####################################################################
