@@ -114,6 +114,9 @@ def main(_):
 					cluster=cluster)):
 	  global_step = tf.Variable(0, name="global_step", trainable=False)
 
+	  '''
+	  BEGIN: Define our model
+	  '''
 	  input = tf.placeholder("float")
 	  label = tf.placeholder("float")
 
@@ -122,6 +125,11 @@ def main(_):
 	  pred = tf.multiply(input, weight) + bias
 
 	  loss_value = loss(label, pred)
+	  '''
+	  END: Define our model
+	  '''
+
+	  # Define gradient descent optimizer
 	  optimizer = tf.train.GradientDescentOptimizer(learning_rate)
 
 	  grads_and_vars = optimizer.compute_gradients(loss_value)
@@ -148,7 +156,7 @@ def main(_):
 	  saver = tf.train.Saver()
 	  tf.summary.scalar('cost', loss_value)
 	  
- 
+ 	# Need to remove the checkpoint directory before each new run
 	import shutil
 	shutil.rmtree(CHECKPOINT_DIRECTORY, ignore_errors=True)
 
@@ -162,7 +170,6 @@ def main(_):
 		summary_op = tf.summary.merge_all()
 	else:
 		summary_op = None
-
 
 	sv = tf.train.Supervisor(is_chief=(task_index == 0),
 		logdir=CHECKPOINT_DIRECTORY,
@@ -186,7 +193,7 @@ def main(_):
 		train_x = np.random.randn(1)*10
 		train_y = slope * train_x + np.random.randn(1) * 0.33  + intercept
 
-		_, loss_v, step = sess.run([train_op, loss_value, global_step], feed_dict={input:train_x, label:train_y})
+		_, loss_v, step, summary = sess.run([train_op, loss_value, global_step, summary_op], feed_dict={input:train_x, label:train_y})
 
 		if step % steps_to_validate == 0:
 		  w,b = sess.run([weight,bias])
