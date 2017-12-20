@@ -33,45 +33,30 @@ Here's a sample output from one of the worker nodes:
 Distributed TensorFlow training
 Parameter server nodes are: ['10.100.68.245:2222']
 Worker nodes are ['10.100.68.193:2222', '10.100.68.183:2222']
-E1219 17:16:00.594426061  256441 ev_epoll1_linux.c:1051]     grpc epoll fd: 3
-2017-12-19 17:16:00.606638: I tensorflow/core/distributed_runtime/rpc/grpc_channel.cc:215] Initialize GrpcChannelCache for job ps -> {0 -> 10.100.68.245:2222}
-2017-12-19 17:16:00.606825: I tensorflow/core/distributed_runtime/rpc/grpc_channel.cc:215] Initialize GrpcChannelCache for job worker -> {0 -> localhost:2222, 1 -> 10.100.68.183:2222}
-2017-12-19 17:16:00.621637: I tensorflow/core/distributed_runtime/rpc/grpc_server_lib.cc:324] Started server with target: grpc://localhost:2222
-2017-12-19 17:16:05.214110: I tensorflow/core/distributed_runtime/master_session.cc:1004] Start master session bbb6329477418b8d with config:
-step: 0 of 50,000, Predicted Slope: -0.605 (True slope = 5), Predicted Intercept: -0.452 (True intercept = 13, loss: 8838.7070
-step: 1,000 of 50,000, Predicted Slope: 4.995 (True slope = 5), Predicted Intercept: 0.367 (True intercept = 13, loss: 176.1432
-step: 2,000 of 50,000, Predicted Slope: 5.027 (True slope = 5), Predicted Intercept: 1.103 (True intercept = 13, loss: 162.4184
-step: 3,000 of 50,000, Predicted Slope: 4.974 (True slope = 5), Predicted Intercept: 1.796 (True intercept = 13, loss: 118.7577
-step: 4,000 of 50,000, Predicted Slope: 5.042 (True slope = 5), Predicted Intercept: 2.448 (True intercept = 13, loss: 101.8099
-step: 5,000 of 50,000, Predicted Slope: 4.888 (True slope = 5), Predicted Intercept: 3.061 (True intercept = 13, loss: 141.2458
-step: 6,000 of 50,000, Predicted Slope: 5.006 (True slope = 5), Predicted Intercept: 3.641 (True intercept = 13, loss: 92.9185
-step: 8,000 of 50,000, Predicted Slope: 5.004 (True slope = 5), Predicted Intercept: 4.700 (True intercept = 13, loss: 67.9143
-step: 10,000 of 50,000, Predicted Slope: 4.982 (True slope = 5), Predicted Intercept: 5.636 (True intercept = 13, loss: 56.2651
-step: 12,000 of 50,000, Predicted Slope: 5.020 (True slope = 5), Predicted Intercept: 6.470 (True intercept = 13, loss: 39.8159
-step: 13,000 of 50,000, Predicted Slope: 4.998 (True slope = 5), Predicted Intercept: 6.850 (True intercept = 13, loss: 32.2074
-step: 14,000 of 50,000, Predicted Slope: 5.007 (True slope = 5), Predicted Intercept: 7.208 (True intercept = 13, loss: 37.4388
-step: 15,000 of 50,000, Predicted Slope: 5.016 (True slope = 5), Predicted Intercept: 7.545 (True intercept = 13, loss: 37.0500
-step: 17,000 of 50,000, Predicted Slope: 5.036 (True slope = 5), Predicted Intercept: 8.164 (True intercept = 13, loss: 18.4807
-step: 18,000 of 50,000, Predicted Slope: 4.995 (True slope = 5), Predicted Intercept: 8.447 (True intercept = 13, loss: 20.1930
-step: 21,000 of 50,000, Predicted Slope: 4.979 (True slope = 5), Predicted Intercept: 9.197 (True intercept = 13, loss: 14.3947
-step: 23,000 of 50,000, Predicted Slope: 5.003 (True slope = 5), Predicted Intercept: 9.628 (True intercept = 13, loss: 7.4217
-step: 24,000 of 50,000, Predicted Slope: 5.002 (True slope = 5), Predicted Intercept: 9.824 (True intercept = 13, loss: 9.0870
-step: 26,000 of 50,000, Predicted Slope: 5.008 (True slope = 5), Predicted Intercept: 10.184 (True intercept = 13, loss: 8.6674
-step: 27,000 of 50,000, Predicted Slope: 5.003 (True slope = 5), Predicted Intercept: 10.347 (True intercept = 13, loss: 4.7181
-step: 29,000 of 50,000, Predicted Slope: 5.007 (True slope = 5), Predicted Intercept: 10.648 (True intercept = 13, loss: 5.4148
-step: 31,000 of 50,000, Predicted Slope: 5.005 (True slope = 5), Predicted Intercept: 10.914 (True intercept = 13, loss: 8.8434
-step: 33,000 of 50,000, Predicted Slope: 5.012 (True slope = 5), Predicted Intercept: 11.149 (True intercept = 13, loss: 4.0885
-step: 34,000 of 50,000, Predicted Slope: 5.003 (True slope = 5), Predicted Intercept: 11.257 (True intercept = 13, loss: 1.0327
-step: 35,000 of 50,000, Predicted Slope: 4.989 (True slope = 5), Predicted Intercept: 11.359 (True intercept = 13, loss: 5.2579
-step: 36,000 of 50,000, Predicted Slope: 4.997 (True slope = 5), Predicted Intercept: 11.455 (True intercept = 13, loss: 2.6394
-step: 37,000 of 50,000, Predicted Slope: 5.004 (True slope = 5), Predicted Intercept: 11.546 (True intercept = 13, loss: 0.9799
-step: 39,000 of 50,000, Predicted Slope: 5.011 (True slope = 5), Predicted Intercept: 11.710 (True intercept = 13, loss: 3.1933
-step: 41,000 of 50,000, Predicted Slope: 5.001 (True slope = 5), Predicted Intercept: 11.856 (True intercept = 13, loss: 0.8543
-step: 42,000 of 50,000, Predicted Slope: 5.001 (True slope = 5), Predicted Intercept: 11.922 (True intercept = 13, loss: 3.1766
-step: 43,000 of 50,000, Predicted Slope: 4.997 (True slope = 5), Predicted Intercept: 11.984 (True intercept = 13, loss: 0.9390
-step: 44,000 of 50,000, Predicted Slope: 4.998 (True slope = 5), Predicted Intercept: 12.043 (True intercept = 13, loss: 0.9113
-step: 45,000 of 50,000, Predicted Slope: 4.992 (True slope = 5), Predicted Intercept: 12.099 (True intercept = 13, loss: 1.2349
-step: 47,000 of 50,000, Predicted Slope: 4.995 (True slope = 5), Predicted Intercept: 12.201 (True intercept = 13, loss: 0.9698
-step: 48,000 of 50,000, Predicted Slope: 4.995 (True slope = 5), Predicted Intercept: 12.248 (True intercept = 13, loss: 1.7298
-step: 49,000 of 50,000, Predicted Slope: 4.994 (True slope = 5), Predicted Intercept: 12.292 (True intercept = 13, loss: 0.9635
+E1219 17:21:59.704264874  284893 ev_epoll1_linux.c:1051]     grpc epoll fd: 3
+(step: 5,000 of 50,000) Predicted Slope: 5.061 (True slope = 5), Predicted Intercept: 3.491 (True intercept = 13, loss: 78.1103
+(step: 7,000 of 50,000) Predicted Slope: 4.988 (True slope = 5), Predicted Intercept: 4.564 (True intercept = 13, loss: 76.8142
+(step: 10,000 of 50,000) Predicted Slope: 5.011 (True slope = 5), Predicted Intercept: 5.955 (True intercept = 13, loss: 54.2730
+(step: 12,000 of 50,000) Predicted Slope: 4.977 (True slope = 5), Predicted Intercept: 6.749 (True intercept = 13, loss: 34.2588
+(step: 16,000 of 50,000) Predicted Slope: 5.017 (True slope = 5), Predicted Intercept: 8.083 (True intercept = 13, loss: 23.1863
+(step: 19,000 of 50,000) Predicted Slope: 4.964 (True slope = 5), Predicted Intercept: 8.893 (True intercept = 13, loss: 14.5385
+(step: 21,000 of 50,000) Predicted Slope: 5.002 (True slope = 5), Predicted Intercept: 9.357 (True intercept = 13, loss: 16.4815
+(step: 22,000 of 50,000) Predicted Slope: 5.020 (True slope = 5), Predicted Intercept: 9.569 (True intercept = 13, loss: 12.6421
+(step: 23,000 of 50,000) Predicted Slope: 5.008 (True slope = 5), Predicted Intercept: 9.770 (True intercept = 13, loss: 14.0352
+(step: 26,000 of 50,000) Predicted Slope: 4.989 (True slope = 5), Predicted Intercept: 10.302 (True intercept = 13, loss: 7.6165
+(step: 27,000 of 50,000) Predicted Slope: 5.020 (True slope = 5), Predicted Intercept: 10.460 (True intercept = 13, loss: 5.3987
+(step: 29,000 of 50,000) Predicted Slope: 5.013 (True slope = 5), Predicted Intercept: 10.745 (True intercept = 13, loss: 4.5019
+(step: 30,000 of 50,000) Predicted Slope: 4.997 (True slope = 5), Predicted Intercept: 10.876 (True intercept = 13, loss: 2.3906
+(step: 33,000 of 50,000) Predicted Slope: 4.999 (True slope = 5), Predicted Intercept: 11.226 (True intercept = 13, loss: 2.3224
+(step: 35,000 of 50,000) Predicted Slope: 4.991 (True slope = 5), Predicted Intercept: 11.427 (True intercept = 13, loss: 3.5785
+(step: 39,000 of 50,000) Predicted Slope: 5.000 (True slope = 5), Predicted Intercept: 11.763 (True intercept = 13, loss: 1.5105
+(step: 40,000 of 50,000) Predicted Slope: 4.996 (True slope = 5), Predicted Intercept: 11.836 (True intercept = 13, loss: 2.3410
+(step: 42,000 of 50,000) Predicted Slope: 4.994 (True slope = 5), Predicted Intercept: 11.968 (True intercept = 13, loss: 2.0370
+(step: 43,000 of 50,000) Predicted Slope: 5.012 (True slope = 5), Predicted Intercept: 12.029 (True intercept = 13, loss: 0.9397
+(step: 44,000 of 50,000) Predicted Slope: 4.994 (True slope = 5), Predicted Intercept: 12.085 (True intercept = 13, loss: 1.8277
+(step: 46,000 of 50,000) Predicted Slope: 4.997 (True slope = 5), Predicted Intercept: 12.188 (True intercept = 13, loss: 2.0670
+(step: 47,000 of 50,000) Predicted Slope: 4.999 (True slope = 5), Predicted Intercept: 12.236 (True intercept = 13, loss: 0.2624
+(step: 48,000 of 50,000) Predicted Slope: 5.000 (True slope = 5), Predicted Intercept: 12.280 (True intercept = 13, loss: 0.4610
+(step: 49,000 of 50,000) Predicted Slope: 4.993 (True slope = 5), Predicted Intercept: 12.322 (True intercept = 13, loss: 0.1421
+(step: 50,000 of 50,000) Predicted Slope: 5.003 (True slope = 5), Predicted Intercept: 12.361 (True intercept = 13, loss: 0.5046
 ```
