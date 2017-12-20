@@ -188,10 +188,11 @@ def main(_):
 		qop = q.enqueue(1)
 		enq_ops.append(qop)
 
-	if is_chief:
-		summary_op = tf.summary.merge_all()
-	else:
-		summary_op = None
+	summary_op = tf.summary.merge_all()
+	# if is_chief:
+	# 	summary_op = tf.summary.merge_all()
+	# else:
+	# 	summary_op = None
 
 	# TODO:  Theoretically I can pass the summary_op into
 	# the Supervisor and have it handle the TensorBoard
@@ -228,7 +229,7 @@ def main(_):
 			history, loss_v, step = sess.run([train_op, loss_value, global_step], 
 										feed_dict={inputv:train_x, label:train_y})
 		
-			if is_chief and (step % steps_to_validate == 0):
+			if (step % steps_to_validate == 0):
 			  w,b = sess.run([weight,bias])
 			  
 			  print("[step: {:,} of {:,}] Predicted Slope: {:.3f} (True slope = {}), " \
