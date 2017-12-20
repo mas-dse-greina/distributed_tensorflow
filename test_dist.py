@@ -193,8 +193,8 @@ def main(_):
 		global_step=global_step,
 		save_model_secs=60)  # Save the model (with weights) everty 60 seconds
 
-#with sv.prepare_or_wait_for_session(server.target) as sess:
-	with sv.managed_session(server.target) as sess:
+	with sv.prepare_or_wait_for_session(server.target) as sess:
+	#with sv.managed_session(server.target) as sess:
 	
 	  
 		if is_chief and is_sync:
@@ -224,8 +224,7 @@ def main(_):
 		for op in enq_ops:
 			sess.run(op)   # Send the "work completed" signal to the parameter server
 			
-		sess.close()
-		sv.stop()
+		
 	  
 				
 	print('Finished work')
