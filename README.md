@@ -20,9 +20,9 @@ To run the script:
 + `pip install https://anaconda.org/intel/tensorflow/1.4.0/download/tensorflow-1.4.0-cp27-cp27mu-linux_x86_64.whl`
 2. Edit test_dist.py to specify which machines will be parameter servers and which will be worker nodes.
 ```
-ps_hosts = ["10.100.68.245"]
+ps_hosts = ["22.100.68.245"]
 ps_ports = ["2222"]
-worker_hosts = ["10.100.68.193","10.100.68.183"] #,"10.100.68.185","10.100.68.187"]
+worker_hosts = ["22.100.28.193","22.100.28.183"] #,"22.100.28.185","22.100.28.187"]
 worker_ports = ["2222", "2222"] #, "2222", "2222"]
 ```
 3. Run `python test_dist.py --issync=1` on every machine. You can specify the IP address (--ip) if you want to use OPA instead of the usual IPv4/6 address.
@@ -31,8 +31,8 @@ Here's a sample output from one of the worker nodes:
 ```
 (tf) [tony@tensor816 distributed_tensorflow]$ python test_dist.py --ip=10.100.68.193 --issync=0
 Distributed TensorFlow training
-Parameter server nodes are: ['10.100.68.245:2222']
-Worker nodes are ['10.100.68.193:2222', '10.100.68.183:2222']
+Parameter server nodes are: ['22.100.28.245:2222']
+Worker nodes are ['22.100.28.193:2222', '22.100.28.183:2222']
 E1219 17:21:59.704264874  284893 ev_epoll1_linux.c:1051]     grpc epoll fd: 3
 (step: 5,000 of 50,000) Predicted Slope: 5.061 (True slope = 5), Predicted Intercept: 3.491 (True intercept = 13, loss: 78.1103
 (step: 7,000 of 50,000) Predicted Slope: 4.988 (True slope = 5), Predicted Intercept: 4.564 (True intercept = 13, loss: 76.8142
