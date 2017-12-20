@@ -198,9 +198,10 @@ def main(_):
 
 		_, loss_v, step = sess.run([train_op, loss_value, global_step], feed_dict={inputv:train_x, label:train_y})
 	
-		if ischief and (step % steps_to_validate == 0):
-		  w,b, summary = sess.run([weight,bias,summary_op])
-		  sv.summary_computed(sess, summary)  # Update the summary
+		if (step % steps_to_validate == 0):
+		  w,b = sess.run([weight,bias])
+		  # w,b, summary = sess.run([weight,bias,summary_op])
+		  # sv.summary_computed(sess, summary)  # Update the summary
 		  print("(step: {:,} of {:,}) Predicted Slope: {} (True slope = {}), Predicted Intercept: {} (True intercept = {}, loss: {}".format(step, NUM_STEPS, w[0], slope, b[0], intercept, loss_v))
 
 	
