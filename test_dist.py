@@ -166,10 +166,12 @@ def main(_):
 		qop = q.enqueue(1)
 		enq_ops.append(qop)
 
-	if (task_index == 0):
-		summary_op = tf.summary.merge_all()
-	else:
-		summary_op = None
+	# if (task_index == 0):
+	# 	summary_op = tf.summary.merge_all()
+	# else:
+	# 	summary_op = None
+
+	summary_op = tf.summary.merge_all()
 
 	sv = tf.train.Supervisor(is_chief=(task_index == 0),
 		logdir=CHECKPOINT_DIRECTORY,
@@ -177,7 +179,7 @@ def main(_):
 		summary_op=summary_op,
 		saver=saver,
 		global_step=global_step,
-		save_model_secs=60)
+		save_model_secs=20)
 
 
 	with sv.prepare_or_wait_for_session(server.target) as sess:
@@ -193,11 +195,13 @@ def main(_):
 		train_x = np.random.randn(1)*10
 		train_y = slope * train_x + np.random.randn(1) * 0.33  + intercept
 
-		if (task_index == 0):
-			_, loss_v, step, summary = sess.run([train_op, loss_value, global_step, summary_op], feed_dict={input:train_x, label:train_y})
-		else:
-			_, loss_v, step = sess.run([train_op, loss_value, global_step], feed_dict={input:train_x, label:train_y})
+		# if (task_index == 0):
+		# 	_, loss_v, step, summary = sess.run([train_op, loss_value, global_step, summary_op], feed_dict={input:train_x, label:train_y})
+		# else:
+		# 	_, loss_v, step = sess.run([train_op, loss_value, global_step], feed_dict={input:train_x, label:train_y})
 
+		_, loss_v, step, summary = sess.run([train_op, loss_value, global_step, summary_op], feed_dict={input:train_x, label:train_y})
+	
 		if step % steps_to_validate == 0:
 		  w,b = sess.run([weight,bias])
 		  print("(step: {:,} of {:,}) Predicted Slope: {} (True slope = {}), Predicted Intercept: {} (True intercept = {}, loss: {}".format(step, NUM_STEPS, w, slope, b, intercept, loss_v))
