@@ -224,7 +224,7 @@ def main(_):
 	  for op in enq_ops:
 	  	sess.run(op)   # Send the "work completed" signal to the parameter server
 		
-	  sv.request_stop()
+	  sv.stop()
 	  
 				
 	print('Finished work')
