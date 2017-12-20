@@ -4,9 +4,9 @@
 # Then run this script on each of those machines.
 
 """
-Usage:  python test_dist.py --ip=10.100.68.245 --issync=0
+Usage:  python test_dist.py --ip=10.100.68.245 --is_sync=0
         for asynchronous TF
-        python test_dist.py --ip=10.100.68.245 --issync=1
+        python test_dist.py --ip=10.100.68.245 --is_sync=1
         for synchronous updates
         The IP address must match one of the ones in the list below. If not passed,
         then we"ll default to the current machine"s IP (which is usually correct unless you use OPA)
@@ -48,7 +48,7 @@ FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_float("learning_rate", 0.0001, "Initial learning rate.")
 tf.app.flags.DEFINE_integer("steps_to_validate", 1000,
 					 "Validate and print loss after this many steps")
-tf.app.flags.DEFINE_integer("issync", 0, "Synchronous updates?")
+tf.app.flags.DEFINE_integer("is_sync", 0, "Synchronous updates?")
 tf.app.flags.DEFINE_string("ip", socket.gethostbyname(socket.gethostname()), "IP address of this machine")
 
 # Hyperparameters
@@ -89,8 +89,8 @@ def main(_):
   cluster = tf.train.ClusterSpec({"ps": ps_list, "worker": worker_list})
   server = tf.train.Server(cluster,job_name=job_name,task_index=task_index)
 
-  issync = (FLAGS.issync == 1)  # Synchronous or asynchronous updates
-  ischief = (task_index == 0)  # Am I the chief node (always task 0)
+  is_sync = (FLAGS.is_sync == 1)  # Synchronous or asynchronous updates
+  is_chief = (task_index == 0)  # Am I the chief node (always task 0)
 
 
   if job_name == "ps":
@@ -139,7 +139,7 @@ def main(_):
 	  optimizer = tf.train.GradientDescentOptimizer(learning_rate)
 
 	  grads_and_vars = optimizer.compute_gradients(loss_value)
-	  if issync:
+	  if is_sync:
 		
 		rep_op = tf.train.SyncReplicasOptimizer(optimizer,
 			replicas_to_aggregate=len(worker_hosts),
@@ -172,12 +172,12 @@ def main(_):
 		qop = q.enqueue(1)
 		enq_ops.append(qop)
 
-	if ischief:
+	if is_chief:
 		summary_op = None
 	else:
 		summary_op = tf.summary.merge_all()
 
-	sv = tf.train.Supervisor(is_chief=ischief,
+	sv = tf.train.Supervisor(is_chief=is_chief,
 		logdir=CHECKPOINT_DIRECTORY,
 		init_op=init_op,
 		summary_op=None, 
@@ -188,7 +188,7 @@ def main(_):
 
 	with sv.prepare_or_wait_for_session(server.target) as sess:
 	  
-	  if ischief and issync:
+	  if is_chief and is_sync:
 		sv.start_queue_runners(sess, [chief_queue_runner])
 		sess.run(init_token_op)
 	  step = 0
@@ -201,7 +201,7 @@ def main(_):
 
 		_, loss_v, step = sess.run([train_op, loss_value, global_step], feed_dict={inputv:train_x, label:train_y})
 	
-		if ischief and (step % steps_to_validate == 0):
+		if is_chief and (step % steps_to_validate == 0):
 		  w,b = sess.run([weight,bias])
 		  # w,b, summary = sess.run([weight,bias,summary_op])
 		  # sv.summary_computed(sess, summary)  # Update the summary
