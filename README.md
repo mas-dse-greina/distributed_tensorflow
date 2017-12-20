@@ -5,7 +5,7 @@ Sample Implementation of Distributed TensorFlow
 
 This should work for TF >= 1.4.
 
-It implements either synchronous and asynchronous parameter updates.
+It implements either synchronous and asynchronous parameter updates. As seen in the figure above, the asynchronous updates trained much faster than the synchronous ones for this toy example.
 
 The "data" is just a simple line with random noise. You can change the slope and intercept of the line by editing those variables at the top of the [test_dist.py](https://github.com/mas-dse-greina/distributed_tensorflow/blob/master/test_dist.py) file.
 
