@@ -210,7 +210,7 @@ def main(_):
 	# For now, I just handle the summary calls explicitly.
 	import time
 	sv = tf.train.Supervisor(is_chief=is_chief,
-		logdir=CHECKPOINT_DIRECTORY+'/run'+time.strftime("_%Y%m%d_%H%M%S"),
+		logdir=CHECKPOINT_DIRECTORY+'/sync', #'/run'+time.strftime("_%Y%m%d_%H%M%S"),
 		init_op=init_op,
 		summary_op=None, 
 		saver=saver,
