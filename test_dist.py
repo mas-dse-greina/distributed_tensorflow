@@ -118,6 +118,11 @@ def main(_):
 
   elif job_name == "worker":
 	
+	if is_chief:
+		print("I am chief worker {} with task #{}".format(worker_hosts[task_index], task_index))
+	else:
+		print("I am worker {} with task #{}".format(worker_hosts[task_index], task_index))
+
 	with tf.device(tf.train.replica_device_setter(
 					worker_device="/job:worker/task:{}".format(task_index),
 					cluster=cluster)):
@@ -129,8 +134,8 @@ def main(_):
 	  inputv = tf.placeholder(tf.float32)
 	  label  = tf.placeholder(tf.float32)
 
-	  weight = tf.get_variable("weight", [1], tf.float32, initializer=tf.random_normal_initializer())
-	  bias  = tf.get_variable("bias", [1], tf.float32, initializer=tf.random_normal_initializer())
+	  weight = tf.get_variable("slope", [1], tf.float32, initializer=tf.random_normal_initializer())
+	  bias  = tf.get_variable("intercept", [1], tf.float32, initializer=tf.random_normal_initializer())
 	  pred = tf.multiply(inputv, weight) + bias
 
 	  loss_value = loss(label, pred)
@@ -183,7 +188,7 @@ def main(_):
 	sv = tf.train.Supervisor(is_chief=is_chief,
 		logdir=CHECKPOINT_DIRECTORY,
 		init_op=init_op,
-		summary_op=None, 
+		summary_op=summary_op, 
 		saver=saver,
 		global_step=global_step,
 		save_model_secs=60)  # Save the model (with weights) everty 60 seconds
