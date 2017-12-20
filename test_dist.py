@@ -168,6 +168,7 @@ def main(_):
 	  init_op = tf.global_variables_initializer()
 	  
 	  saver = tf.train.Saver()
+	  tf.summary.scalar("slope", weight)
 	  tf.summary.scalar("loss", loss_value)
 	  tf.summary.histogram("loss", loss_value)
 	  
