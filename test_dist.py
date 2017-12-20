@@ -239,15 +239,17 @@ def main(_):
 			history, loss_v, step = sess.run([train_op, loss_value, global_step], 
 										feed_dict={inputv:train_x, label:train_y})
 		
-			if is_chief and (step % steps_to_validate == 0):
+			if (step % steps_to_validate == 0):
 			  w,b = sess.run([weight,bias])
 			  
 			  print("[step: {:,} of {:,}] Predicted Slope: {:.3f} (True slope = {}), " \
 					"Predicted Intercept: {:.3f} (True intercept = {}), loss: {:.4f}" \
 					.format(step, NUM_STEPS, w, slope, b, intercept, loss_v))
 
-			  summary = sess.run(summary_op, feed_dict={inputv:train_x, label:train_y})
-			  sv.summary_computed(sess, summary)  # Update the summary
+			  if (is_chief):
+
+				  summary = sess.run(summary_op, feed_dict={inputv:train_x, label:train_y})
+				  sv.summary_computed(sess, summary)  # Update the summary
 
 	  
 		 # Send a signal to the ps when done by simply updating a queue in the shared graph
