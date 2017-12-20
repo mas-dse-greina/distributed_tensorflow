@@ -5,11 +5,11 @@
 
 """
 Usage:  python test_dist.py --ip=10.100.68.245 --is_sync=0
-        for asynchronous TF
-        python test_dist.py --ip=10.100.68.245 --is_sync=1
-        for synchronous updates
-        The IP address must match one of the ones in the list below. If not passed,
-        then we"ll default to the current machine"s IP (which is usually correct unless you use OPA)
+		for asynchronous TF
+		python test_dist.py --ip=10.100.68.245 --is_sync=1
+		for synchronous updates
+		The IP address must match one of the ones in the list below. If not passed,
+		then we"ll default to the current machine"s IP (which is usually correct unless you use OPA)
 """
 ps_hosts = ["10.100.68.245"]
 ps_ports = ["2222"]
@@ -27,7 +27,7 @@ print("Worker nodes are {}".format(worker_list))
 slope = 5
 intercept = 13
 
-CHECKPOINT_DIRECTORY = "./checkpoints/"
+CHECKPOINT_DIRECTORY = "checkpoints"
 NUM_STEPS = 50000
 
 ####################################################################
@@ -37,9 +37,18 @@ import tensorflow as tf
 import os
 import socket
 
+import multiprocessing
+
+num_inter_op_threads = 2  
+num_intra_op_threads = multiprocessing.cpu_count() // 2 # Use half the CPU cores
+
 # Unset proxy env variable to avoid gRPC errors
 del os.environ["http_proxy"]
 del os.environ["https_proxy"]
+
+# You can turn on the gRPC messages by setting the environment variables below
+#os.environ["GRPC_VERBOSITY"]="DEBUG"
+#os.environ["GRPC_TRACE"] = "all"
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"]="2"  # Get rid of the AVX, SSE warnings
 
@@ -85,6 +94,11 @@ def loss(label, pred):
 
 def main(_):
 
+  config = tf.ConfigProto(inter_op_parallelism_threads=num_inter_op_threads,intra_op_parallelism_threads=num_intra_op_threads)
+
+  run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+  run_metadata = tf.RunMetadata()  # For Tensorflow trace
+
   cluster = tf.train.ClusterSpec({"ps": ps_list, "worker": worker_list})
   server = tf.train.Server(cluster,job_name=job_name,task_index=task_index)
 
@@ -94,26 +108,30 @@ def main(_):
 
   if job_name == "ps":
 
-	sess = tf.Session(server.target)
+	sess = tf.Session(server.target, config=config)
 	queue = create_done_queue(task_index)
+
+	print("\n")
+	print("*"*30)
+	print("\nParameter server #{} on this machine.\n\n" \
+		"Waiting on workers to finish.\n\nPress CTRL-\\ to terminate early." .format(task_index))
+	print("*"*30)
 
 	# wait until all workers are done
 	for i in range(len(worker_hosts)):
-		print("\n")
-		print("*"*30)
-		print("\nParameter server #{} started with task #{} on this machine.\n\n" \
-			"Waiting on workers to finish.\n\nPress CTRL-\\ to terminate early." .format(task_index, i))
-		print("*"*30)
 		sess.run(queue.dequeue())
 		print("Worker #{} reports job finished." .format(i))
 	 
-	print("Parameter server {} is quitting".format(task_index))
+	print("Parameter server #{} is quitting".format(task_index))
 	print("Training complete.")
-	# print("Server started. Press CTRL-\\ to terminate early.")
-	# server.join()
 
   elif job_name == "worker":
 	
+	if is_chief:
+		print("I am chief worker {} with task #{}".format(worker_hosts[task_index], task_index))
+	else:
+		print("I am worker {} with task #{}".format(worker_hosts[task_index], task_index))
+
 	with tf.device(tf.train.replica_device_setter(
 					worker_device="/job:worker/task:{}".format(task_index),
 					cluster=cluster)):
@@ -125,8 +143,9 @@ def main(_):
 	  inputv = tf.placeholder(tf.float32)
 	  label  = tf.placeholder(tf.float32)
 
-	  weight = tf.get_variable("weight", [1], tf.float32, initializer=tf.random_normal_initializer())
-	  bias  = tf.get_variable("bias", [1], tf.float32, initializer=tf.random_normal_initializer())
+	  # NOTE: The [] means a scalar value. It is different than [1] (which is a vector of length 1)
+	  weight = tf.get_variable("slope", [], tf.float32, initializer=tf.random_normal_initializer())
+	  bias  = tf.get_variable("intercept", [], tf.float32, initializer=tf.random_normal_initializer())
 	  pred = tf.multiply(inputv, weight) + bias
 
 	  loss_value = loss(label, pred)
@@ -159,11 +178,18 @@ def main(_):
 	  init_op = tf.global_variables_initializer()
 	  
 	  saver = tf.train.Saver()
+
+	  # These are the values we wish to print to TensorBoard
+	  tf.summary.scalar("slope", weight)
+	  tf.summary.scalar("intercept", bias)
 	  tf.summary.scalar("loss", loss_value)
+	  tf.summary.histogram("loss", loss_value)
+	  tf.summary.histogram("slope", weight)
+	  tf.summary.histogram("intercept", bias)
 	  
- 	# Need to remove the checkpoint directory before each new run
-	import shutil
-	shutil.rmtree(CHECKPOINT_DIRECTORY, ignore_errors=True)
+	# Need to remove the checkpoint directory before each new run
+	# import shutil
+	# shutil.rmtree(CHECKPOINT_DIRECTORY, ignore_errors=True)
 
 	# Send a signal to the ps when done by simply updating a queue in the shared graph
 	enq_ops = []
@@ -171,46 +197,69 @@ def main(_):
 		qop = q.enqueue(1)
 		enq_ops.append(qop)
 
+	# Only the chief does the summary
 	if is_chief:
-		summary_op = None
-	else:
 		summary_op = tf.summary.merge_all()
+	else:
+		summary_op = None
 
+	# TODO:  Theoretically I can pass the summary_op into
+	# the Supervisor and have it handle the TensorBoard
+	# log entries. However, doing so seems to hang the code.
+	# For now, I just handle the summary calls explicitly.
+	import time
 	sv = tf.train.Supervisor(is_chief=is_chief,
-		logdir=CHECKPOINT_DIRECTORY,
+		logdir=CHECKPOINT_DIRECTORY+'/run'+time.strftime("_%Y%m%d_%H%M%S"),
 		init_op=init_op,
 		summary_op=None, 
 		saver=saver,
 		global_step=global_step,
 		save_model_secs=60)  # Save the model (with weights) everty 60 seconds
 
-
-	with sv.prepare_or_wait_for_session(server.target) as sess:
+	# TODO:
+	# I'd like to use managed_session for this as it is more abstract
+	# and probably less sensitive to changes from the TF team. However,
+	# I am finding that the chief worker hangs on exit if I use managed_session.
+	with sv.prepare_or_wait_for_session(server.target, config=config) as sess:
+	#with sv.managed_session(server.target) as sess:
+	
 	  
-	  if is_chief and is_sync:
-		sv.start_queue_runners(sess, [chief_queue_runner])
-		sess.run(init_token_op)
-	  step = 0
+		if is_chief and is_sync:
+			sv.start_queue_runners(sess, [chief_queue_runner])
+			sess.run(init_token_op)
 
-	  while  step < NUM_STEPS:
+		step = 0
 
-		# Define a line with random noise
-		train_x = np.random.randn(1)*10
-		train_y = slope * train_x  + intercept + np.random.randn(1) * 0.33
+		while (not sv.should_stop()) and (step < NUM_STEPS):
 
-		_, loss_v, step = sess.run([train_op, loss_value, global_step], feed_dict={inputv:train_x, label:train_y})
-	
-		if is_chief and (step % steps_to_validate == 0):
-		  w,b = sess.run([weight,bias])
-		  # w,b, summary = sess.run([weight,bias,summary_op])
-		  # sv.summary_computed(sess, summary)  # Update the summary
-		  print("[step: {:,} of {:,}] Predicted Slope: {:.3f} (True slope = {}), Predicted Intercept: {:.3f} (True intercept = {}), loss: {:.4f}".format(step, NUM_STEPS, w[0], slope, b[0], intercept, loss_v))
-	
-	  # Send a signal to the ps when done by simply updating a queue in the shared graph
-	  for op in enq_ops:
-		sess.run(op)   # Send the "work completed" signal to the parameter server
+			# Define a line with random noise
+			train_x = np.random.randn(1)*10
+			train_y = slope * train_x  + intercept + np.random.randn(1) * 0.33
+
+			history, loss_v, step = sess.run([train_op, loss_value, global_step], 
+										feed_dict={inputv:train_x, label:train_y})
+		
+			if (step % steps_to_validate == 0):
+			  w,b = sess.run([weight,bias])
+			  
+			  print("[step: {:,} of {:,}] Predicted Slope: {:.3f} (True slope = {}), " \
+					"Predicted Intercept: {:.3f} (True intercept = {}), loss: {:.4f}" \
+					.format(step, NUM_STEPS, w, slope, b, intercept, loss_v))
+
+			  if (is_chief):
+
+				  summary = sess.run(summary_op, feed_dict={inputv:train_x, label:train_y})
+				  sv.summary_computed(sess, summary)  # Update the summary
+
+	  
+		 # Send a signal to the ps when done by simply updating a queue in the shared graph
+		for op in enq_ops:
+			sess.run(op)   # Send the "work completed" signal to the parameter server
 				
+	print('Finished work on this node.')
 	sv.request_stop()
+	#sv.stop()
+
 
 if __name__ == "__main__":
   tf.app.run()
