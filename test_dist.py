@@ -202,7 +202,7 @@ def main(_):
 		  w,b = sess.run([weight,bias])
 		  # w,b, summary = sess.run([weight,bias,summary_op])
 		  # sv.summary_computed(sess, summary)  # Update the summary
-		  print("(step: {:,} of {:,}) Predicted Slope: {} (True slope = {}), Predicted Intercept: {} (True intercept = {}, loss: {}".format(step, NUM_STEPS, w[0], slope, b[0], intercept, loss_v))
+		  print("(step: {:,} of {:,}) Predicted Slope: {:.3f} (True slope = {}), Predicted Intercept: {:.3f} (True intercept = {}, loss: {:.4f}".format(step, NUM_STEPS, w[0], slope, b[0], intercept, loss_v))
 
 	
 	  # Send a signal to the ps when done by simply updating a queue in the shared graph
