@@ -193,11 +193,11 @@ def main(_):
 		train_x = np.random.randn(1)*10
 		train_y = slope * train_x + np.random.randn(1) * 0.33  + intercept
 
-		_, loss_v, step = sess.run([train_op, loss_value, global_step], feed_dict={input:train_x, label:train_y})
+		_, loss_v, step, summary = sess.run([train_op, loss_value, global_step, summary_op], feed_dict={input:train_x, label:train_y})
 
 		if step % steps_to_validate == 0:
 		  w,b = sess.run([weight,bias])
-		  print("(step: {:,} of {:,}) Predicted Slope: {:.3f} (True slope = {}), Predicted Intercept: {:.3f} (True intercept = {}, loss: {:.4f}".format(step, NUM_STEPS, w[0], slope, b[0], intercept, loss_v[0]))
+		  print("(step: {:,} of {:,}) Predicted Slope: {:.3f} (True slope = {}), Predicted Intercept: {:.3f} (True intercept = {}, loss: {:.4f}".format(step, NUM_STEPS, w[0], slope, b[0], intercept, loss_v))
 
 	
 	  # Send a signal to the ps when done by simply updating a queue in the shared graph
@@ -207,7 +207,7 @@ def main(_):
 	sv.request_stop()
 
 def loss(label, pred):
-  return tf.square(label - pred)
+  return tf.losses.mean_squared_error(label, pred)
 
 if __name__ == "__main__":
   tf.app.run()
