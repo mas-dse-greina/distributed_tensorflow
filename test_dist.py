@@ -28,7 +28,7 @@ slope = 5
 intercept = 13
 
 CHECKPOINT_DIRECTORY = "./checkpoints/"
-NUM_STEPS = 50000
+NUM_STEPS = 10000
 
 ####################################################################
 
@@ -198,7 +198,7 @@ def main(_):
 		sess.run(init_token_op)
 	  step = 0
 
-	  while  not sv.should_stop() and (step < NUM_STEPS):
+	  while not sv.should_stop() and (step < NUM_STEPS):
 
 		# Define a line with random noise
 		train_x = np.random.randn(1)*10
@@ -217,7 +217,8 @@ def main(_):
 	  for op in enq_ops:
 		sess.run(op)   # Send the "work completed" signal to the parameter server
 				
-	sv.request_stop()
+	#sv.request_stop()
+	sv.stop()
 
 if __name__ == "__main__":
   tf.app.run()
