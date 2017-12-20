@@ -199,7 +199,7 @@ def main(_):
 		train_x = np.random.randn(1)*10
 		train_y = slope * train_x  + intercept + np.random.randn(1) * 0.33
 
-		_, loss_v, step = sess.run([train_op, loss_value, global_step], feed_dict={inputv:train_x, label:train_y})
+		_, loss_v, step, summary = sess.run([train_op, loss_value, global_step, summary_op], feed_dict={inputv:train_x, label:train_y})
 	
 		if (step % steps_to_validate == 0):
 		  w,b = sess.run([weight,bias])
