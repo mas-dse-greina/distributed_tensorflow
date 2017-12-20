@@ -169,7 +169,10 @@ def main(_):
 		qop = q.enqueue(1)
 		enq_ops.append(qop)
 
-	summary_op = tf.summary.merge_all()
+	if ischief:
+		summary_op = None
+	else:
+		summary_op = tf.summary.merge_all()
 
 	sv = tf.train.Supervisor(is_chief=ischief,
 		logdir=CHECKPOINT_DIRECTORY,
