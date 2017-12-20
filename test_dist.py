@@ -220,7 +220,7 @@ def main(_):
 					"Predicted Intercept: {:.3f} (True intercept = {}), loss: {:.4f}" \
 					.format(step, NUM_STEPS, w[0], slope, b[0], intercept, loss_v))
 
-			  summary = sess.run([summary_op])
+			  summary = sess.run([summary_op], feed_dict={inputv:train_x, label:train_y})
 
 	  
 		 # Send a signal to the ps when done by simply updating a queue in the shared graph
