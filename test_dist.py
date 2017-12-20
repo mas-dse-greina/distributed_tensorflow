@@ -219,12 +219,13 @@ def main(_):
 				"Predicted Intercept: {:.3f} (True intercept = {}), loss: {:.4f}" \
 				.format(step, NUM_STEPS, w[0], slope, b[0], intercept, loss_v))
 
-	  print('here')
+	  
 	  # Send a signal to the ps when done by simply updating a queue in the shared graph
 	  for op in enq_ops:
-		sess.run(op)   # Send the "work completed" signal to the parameter server
-		print("1")
-	  print('there')
+	  	sess.run(op)   # Send the "work completed" signal to the parameter server
+		
+	  sv.request_stop()
+	  
 				
 	print('Finished work')
 	#sv.request_stop()
