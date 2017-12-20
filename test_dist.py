@@ -154,7 +154,7 @@ def main(_):
 	  init_op = tf.global_variables_initializer()
 	  
 	  saver = tf.train.Saver()
-	  tf.summary.scalar(loss_value)
+	  tf.summary.scalar('loss', loss_value)
 	  
  	# Need to remove the checkpoint directory before each new run
 	import shutil
@@ -210,7 +210,7 @@ def main(_):
 	sv.request_stop()
 
 def loss(label, pred):
-  return tf.square(label - pred)
+  return [tf.square(label - pred)]
 
 if __name__ == "__main__":
   tf.app.run()
