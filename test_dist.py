@@ -214,7 +214,7 @@ def main(_):
 	sv.request_stop()
 
 def loss(label, pred):
-  return tf.square(label - pred)[0]
+  return tf.losses.mean_squared_error(label, pred)
 
 if __name__ == "__main__":
   tf.app.run()
