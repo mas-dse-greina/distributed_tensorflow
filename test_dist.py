@@ -41,8 +41,9 @@ import socket
 del os.environ["http_proxy"]
 del os.environ["https_proxy"]
 
-os.environ["GRPC_VERBOSITY"]="DEBUG"
-os.environ["GRPC_TRACE"] = "all"
+# You can turn on the gRPC messages by setting the environment variables below
+#os.environ["GRPC_VERBOSITY"]="DEBUG"
+#os.environ["GRPC_TRACE"] = "all"
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"]="2"  # Get rid of the AVX, SSE warnings
 
@@ -189,14 +190,15 @@ def main(_):
 		save_model_secs=60)  # Save the model (with weights) everty 60 seconds
 
 
-	with sv.prepare_or_wait_for_session(server.target) as sess:
+	with sv.managed_session(server.target) as sess:
+	#with sv.prepare_or_wait_for_session(server.target) as sess:
 	  
 	  if is_chief and is_sync:
 		sv.start_queue_runners(sess, [chief_queue_runner])
 		sess.run(init_token_op)
 	  step = 0
 
-	  while  step < NUM_STEPS:
+	  while  not sv.should_stop() and (step < NUM_STEPS):
 
 		# Define a line with random noise
 		train_x = np.random.randn(1)*10
