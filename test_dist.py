@@ -77,6 +77,8 @@ def create_done_queue(i):
 def create_done_queues():
   return [create_done_queue(i) for i in range(len(ps_hosts))]
 
+def loss(label, pred):
+  return tf.losses.mean_squared_error(label, pred)
 
 
 def main(_):
@@ -85,7 +87,7 @@ def main(_):
   server = tf.train.Server(cluster,job_name=job_name,task_index=task_index)
 
   issync = (FLAGS.issync == 1)  # Synchronous or asynchronous updates
-  ischief = (task_index == 0)  # Am I the chief node
+  ischief = (task_index == 0)  # Am I the chief node (always task 0)
 
 
   if job_name == "ps":
@@ -118,12 +120,12 @@ def main(_):
 	  '''
 	  BEGIN: Define our model
 	  '''
-	  input = tf.placeholder(tf.float32)
-	  label = tf.placeholder(tf.float32)
+	  inputv = tf.placeholder(tf.float32)
+	  label  = tf.placeholder(tf.float32)
 
 	  weight = tf.get_variable("weight", [1], tf.float32, initializer=tf.random_normal_initializer())
 	  bias  = tf.get_variable("bias", [1], tf.float32, initializer=tf.random_normal_initializer())
-	  pred = tf.multiply(input, weight) + bias
+	  pred = tf.multiply(inputv, weight) + bias
 
 	  loss_value = loss(label, pred)
 	  '''
@@ -167,15 +169,18 @@ def main(_):
 		qop = q.enqueue(1)
 		enq_ops.append(qop)
 
-	summary_op = tf.summary.merge_all()
+	if ischief:
+		summary_op = tf.summary.merge_all()
+	else:
+		summary_op = None
 
 	sv = tf.train.Supervisor(is_chief=ischief,
 		logdir=CHECKPOINT_DIRECTORY,
 		init_op=init_op,
-		summary_op=None,
+		summary_op=summary_op,
 		saver=saver,
 		global_step=global_step,
-		save_model_secs=20)
+		save_model_secs=60)  # Save the model (with weights) everty 60 seconds
 
 
 	with sv.prepare_or_wait_for_session(server.target) as sess:
@@ -189,13 +194,14 @@ def main(_):
 
 		# Define a line with random noise
 		train_x = np.random.randn(1)*10
-		train_y = slope * train_x + np.random.randn(1) * 0.33  + intercept
+		train_y = slope * train_x  + intercept + np.random.randn(1) * 0.33
 
-		_, loss_v, step = sess.run([train_op, loss_value, global_step], feed_dict={input:train_x, label:train_y})
+		history, loss_v, step = sess.run([train_op, loss_value, global_step], feed_dict={input:train_x, label:train_y})
 	
-		if step % steps_to_validate == 0:
-		  w,b = sess.run([weight,bias])
-		  print("(step: {:,} of {:,}) Predicted Slope: {} (True slope = {}), Predicted Intercept: {} (True intercept = {}, loss: {}".format(step, NUM_STEPS, w, slope, b, intercept, loss_v))
+		if ischief and (step % steps_to_validate == 0):
+		  w,b, summary = sess.run([weight,bias,summary_op])
+		  sv.summary_computed(sess, summary)  # Update the summary
+		  print("(step: {:,} of {:,}) Predicted Slope: {} (True slope = {}), Predicted Intercept: {} (True intercept = {}, loss: {}".format(step, NUM_STEPS, w[0], slope, b[0], intercept, loss_v))
 
 	
 	  # Send a signal to the ps when done by simply updating a queue in the shared graph
@@ -203,9 +209,6 @@ def main(_):
 		sess.run(op)   # Send the "work completed" signal to the parameter server
 				
 	sv.request_stop()
-
-def loss(label, pred):
-  return tf.losses.mean_squared_error(label, pred)
 
 if __name__ == "__main__":
   tf.app.run()
