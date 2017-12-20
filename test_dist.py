@@ -168,8 +168,8 @@ def main(_):
 	  init_op = tf.global_variables_initializer()
 	  
 	  saver = tf.train.Saver()
-	  tf.summary.scalar("loss", loss_value)
-	  tf.summary.scalar("mae", tf.metrics.mean_absolute_error(label, pred))
+	  tf.summary.scalar("loss", [loss_value])
+	  tf.summary.scalar("mae", [tf.metrics.mean_absolute_error(label, pred)])
 	  
 	# Need to remove the checkpoint directory before each new run
 	import shutil
@@ -220,7 +220,7 @@ def main(_):
 					"Predicted Intercept: {:.3f} (True intercept = {}), loss: {:.4f}" \
 					.format(step, NUM_STEPS, w[0], slope, b[0], intercept, loss_v))
 
-			  summary = sess.run(summary_op, feed_dict={inputv:train_x, label:train_y})
+			  summary = sess.run([summary_op], feed_dict={inputv:train_x, label:train_y})
 			  sv.summary_computed(sess, summary)  # Update the summary
 
 	  
