@@ -204,9 +204,6 @@ def main(_):
 
 	  while (step < NUM_STEPS):
 
-		if sv.should_stop():
-			break
-
 		# Define a line with random noise
 		train_x = np.random.randn(1)*10
 		train_y = slope * train_x  + intercept + np.random.randn(1) * 0.33
@@ -222,7 +219,7 @@ def main(_):
 				"Predicted Intercept: {:.3f} (True intercept = {}), loss: {:.4f}" \
 				.format(step, NUM_STEPS, w[0], slope, b[0], intercept, loss_v))
 
-	
+	  print('here')
 	  # Send a signal to the ps when done by simply updating a queue in the shared graph
 	  for op in enq_ops:
 		sess.run(op)   # Send the "work completed" signal to the parameter server
