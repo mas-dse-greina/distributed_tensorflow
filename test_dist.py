@@ -188,7 +188,7 @@ def main(_):
 	sv = tf.train.Supervisor(is_chief=is_chief,
 		logdir=CHECKPOINT_DIRECTORY,
 		init_op=init_op,
-		summary_op=summary_op, 
+		summary_op=None, 
 		saver=saver,
 		global_step=global_step,
 		save_model_secs=60)  # Save the model (with weights) everty 60 seconds
@@ -202,7 +202,7 @@ def main(_):
 		sess.run(init_token_op)
 	  step = 0
 
-	  while not sv.should_stop() and (step < NUM_STEPS):
+	  while (step < NUM_STEPS):
 
 		# Define a line with random noise
 		train_x = np.random.randn(1)*10
