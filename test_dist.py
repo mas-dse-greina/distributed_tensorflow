@@ -134,6 +134,7 @@ def main(_):
 	  inputv = tf.placeholder(tf.float32)
 	  label  = tf.placeholder(tf.float32)
 
+	  # NOTE: The [] means a scalar value. It is different than [1] (which is a vector of length 1)
 	  weight = tf.get_variable("slope", [], tf.float32, initializer=tf.random_normal_initializer())
 	  bias  = tf.get_variable("intercept", [], tf.float32, initializer=tf.random_normal_initializer())
 	  pred = tf.multiply(inputv, weight) + bias
@@ -168,9 +169,14 @@ def main(_):
 	  init_op = tf.global_variables_initializer()
 	  
 	  saver = tf.train.Saver()
-	  tf.summary.scalar('slope', weight)
+
+	  # These are the values we wish to print to TensorBoard
+	  tf.summary.scalar("slope", weight)
+	  tf.summary.scalar("intercept", bias)
 	  tf.summary.scalar("loss", loss_value)
 	  tf.summary.histogram("loss", loss_value)
+	  tf.summary.histogram("slope", weight)
+	  tf.summary.histogram("intercept", bias)
 	  
 	# Need to remove the checkpoint directory before each new run
 	import shutil
@@ -187,14 +193,22 @@ def main(_):
 	else:
 		summary_op = None
 
+	# TODO:  Theoretically I can pass the summary_op into
+	# the Supervisor and have it handle the TensorBoard
+	# log entries. However, doing so seems to hang the code.
+	# For now, I just handle the summary calls explicitly.
 	sv = tf.train.Supervisor(is_chief=is_chief,
 		logdir=CHECKPOINT_DIRECTORY,
 		init_op=init_op,
-		summary_op=None, 
+		summary_op=summary_op, 
 		saver=saver,
 		global_step=global_step,
 		save_model_secs=60)  # Save the model (with weights) everty 60 seconds
 
+	# TODO:
+	# I'd like to use managed_session for this as it is more abstract
+	# and probably less sensitive to changes from the TF team. However,
+	# I am finding that the chief worker hangs on exit if I use managed_session.
 	with sv.prepare_or_wait_for_session(server.target) as sess:
 	#with sv.managed_session(server.target) as sess:
 	
@@ -211,7 +225,7 @@ def main(_):
 			train_x = np.random.randn(1)*10
 			train_y = slope * train_x  + intercept + np.random.randn(1) * 0.33
 
-			_, loss_v, step = sess.run([train_op, loss_value, global_step], 
+			history, loss_v, step = sess.run([train_op, loss_value, global_step], 
 										feed_dict={inputv:train_x, label:train_y})
 		
 			if is_chief and (step % steps_to_validate == 0):
@@ -230,7 +244,7 @@ def main(_):
 			sess.run(op)   # Send the "work completed" signal to the parameter server
 			
 				
-	print('Finished work')
+	print('Finished work on this node.')
 	sv.request_stop()
 	#sv.stop()
 
