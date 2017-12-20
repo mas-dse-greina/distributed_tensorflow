@@ -167,14 +167,14 @@ def main(_):
 		enq_ops.append(qop)
 
 	if (task_index == 0):
-		summary_op = tf.merge_all_summaries()
+		summary_op = tf.summary.merge_all()
 	else:
 		summary_op = None
 
 	sv = tf.train.Supervisor(is_chief=(task_index == 0),
 		logdir=CHECKPOINT_DIRECTORY,
 		init_op=init_op,
-		#summary_op=summary_op,
+		summary_op=None,
 		saver=saver,
 		global_step=global_step,
 		save_model_secs=60)
