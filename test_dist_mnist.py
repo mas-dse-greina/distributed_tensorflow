@@ -24,7 +24,7 @@ print("Parameter server nodes are: {}".format(ps_list))
 print("Worker nodes are {}".format(worker_list))
 
 CHECKPOINT_DIRECTORY = "checkpoints"
-BATCH_SIZE = 1024
+BATCH_SIZE = 256
 NUM_EPOCHS = 10
 
 ####################################################################
@@ -94,10 +94,6 @@ def create_done_queues():
 	return [create_done_queue(i) for i in range(len(ps_hosts))]
 
 
-def loss(label, pred):
-	return tf.losses.mean_squared_error(label, pred)
-
-
 def main(_):
 
 	config = tf.ConfigProto(
@@ -150,6 +146,8 @@ def main(_):
 			""" 
 			BEGIN:  Data loader
 			"""
+
+			# Perform data augmentation to images (random crops, flips, rotations)
 			datagen = tf.keras.preprocessing.image.ImageDataGenerator(
 				rotation_range=20,
 				width_shift_range=0.2,
@@ -188,11 +186,13 @@ def main(_):
 			inputs = tf.keras.layers.Input(tensor=img, name='Images')
 
 			# Keras layers can be called on TensorFlow tensors:
-			x = tf.keras.layers.Conv2D(filters=32, kernel_size=(3,3), activation='relu', padding='same')(inputs)
-			x = tf.keras.layers.Conv2D(filters=32, kernel_size=(3,3), activation='relu', padding='same')(x)
+			x = tf.keras.layers.Conv2D(filters=32, kernel_size=(5,5), activation='relu', padding='same')(inputs)
+			x = tf.keras.layers.MaxPool2D(pool_size=(2,2))(x)
+			x = tf.keras.layers.Conv2D(filters=16, kernel_size=(3,3), activation='relu', padding='same')(x)
 			x = tf.keras.layers.MaxPool2D(pool_size=(2,2))(x)
 			x = tf.keras.layers.Flatten()(x)
 			x = tf.keras.layers.Dense(128, activation="relu")(x)
+			x = tf.keras.layers.Dense(64, activation="relu")(x)
 			preds = tf.keras.layers.Dense(10, activation="softmax")(x)  # output layer with 10 units and a softmax activation
 
 			model = tf.keras.models.Model(inputs=[inputs], outputs=[preds])
@@ -274,8 +274,8 @@ def main(_):
 		import time
 		sv = tf.train.Supervisor(
 			is_chief=is_chief,
-			logdir=CHECKPOINT_DIRECTORY + "/run" +
-			time.strftime("_%Y%m%d_%H%M%S"),
+			logdir=os.path.join(CHECKPOINT_DIRECTORY, "run" +
+			time.strftime("_%Y%m%d_%H%M%S")),
 			init_op=init_op,
 			summary_op=None,
 			saver=saver,
@@ -301,7 +301,7 @@ def main(_):
 			if is_chief: 
 				cmd = 'tensorboard --logdir={}'.format(CHECKPOINT_DIRECTORY)
 				tensorboard_pid = subprocess.Popen(cmd, stdout=subprocess.PIPE, 
-                       shell=True, preexec_fn=os.setsid)  
+					   shell=True, preexec_fn=os.setsid)  
 				
 			# Go for a few epochs of training
 			NUM_STEPS = NUM_EPOCHS * x_train.shape[0] // BATCH_SIZE
@@ -331,6 +331,12 @@ def main(_):
 											summary)  # Update the summary
 
 					print("[step: {:,} of {:,}]  loss: {:.4f}, accuracy: {:.2f}" \
+					.format(step, NUM_STEPS, loss_v, acc_val))
+
+
+			if (is_chief):
+				sv.summary_computed(sess, summary) 
+				print("[step: {:,} of {:,}]  loss: {:.4f}, accuracy: {:.2f}" \
 					.format(step, NUM_STEPS, loss_v, acc_val))
 
 			# Send a signal to the ps when done by simply updating a queue in the shared graph
